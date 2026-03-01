@@ -643,11 +643,13 @@ let kuiperBelt = null;        // 柯伊伯带（海王星之外）
 // 创建小行星带
 function createAsteroidBelt(innerRadius, outerRadius, count, color = 0x888888) {
     const asteroidCount = count;
-    const geometry = new THREE.IcosahedronGeometry(0.15, 0);
+    const geometry = new THREE.IcosahedronGeometry(0.5, 0);  // 增大尺寸
     const material = new THREE.MeshStandardMaterial({
         color: color,
-        roughness: 0.9,
-        metalness: 0.1
+        roughness: 0.7,
+        metalness: 0.2,
+        emissive: color,
+        emissiveIntensity: 0.3  // 增加自发光
     });
     
     const asteroids = new THREE.InstancedMesh(geometry, material, asteroidCount);
@@ -666,7 +668,7 @@ function createAsteroidBelt(innerRadius, outerRadius, count, color = 0x888888) {
         // 随机角度
         const angle = Math.random() * Math.PI * 2;
         // 随机倾斜（轻微偏离黄道面）
-        const yOffset = (Math.random() - 0.5) * 4;
+        const yOffset = (Math.random() - 0.5) * 6;
         
         position.set(
             Math.cos(angle) * orbitRadius,
@@ -682,8 +684,8 @@ function createAsteroidBelt(innerRadius, outerRadius, count, color = 0x888888) {
         );
         quaternion.setFromEuler(rotation);
         
-        // 随机大小
-        const s = Math.random() * 0.8 + 0.3;
+        // 随机大小（增大范围）
+        const s = Math.random() * 1.5 + 0.5;
         scale.set(s, s, s);
         
         matrix.compose(position, quaternion, scale);
@@ -694,12 +696,13 @@ function createAsteroidBelt(innerRadius, outerRadius, count, color = 0x888888) {
             orbitRadius: orbitRadius,
             angle: angle,
             yOffset: yOffset,
-            speed: 0.0005 + Math.random() * 0.001,  // 公转速度
+            speed: 0.0003 + Math.random() * 0.0005,  // 公转速度
             rotationSpeed: {
                 x: (Math.random() - 0.5) * 0.02,
                 y: (Math.random() - 0.5) * 0.02,
                 z: (Math.random() - 0.5) * 0.02
-            }
+            },
+            scale: s
         });
     }
     
@@ -736,9 +739,8 @@ function updateAsteroidBelt(beltObj) {
         rotation.z += data.rotationSpeed.z;
         quaternion.setFromEuler(rotation);
         
-        // 保持原大小
-        beltObj.mesh.getMatrixAt(i, matrix);
-        matrix.decompose(new THREE.Vector3(), new THREE.Quaternion(), scale);
+        // 使用保存的大小
+        scale.set(data.scale, data.scale, data.scale);
         
         matrix.compose(position, quaternion, scale);
         beltObj.mesh.setMatrixAt(i, matrix);
