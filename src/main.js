@@ -30,7 +30,7 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 
-// ========== 创建行星标签 ==========
+// ========== 创建行星/卫星标签 ==========
 function createPlanetLabel(name, emoji) {
     const div = document.createElement('div');
     div.className = 'planet-label';
@@ -210,6 +210,115 @@ function createPlanetTexture(type, size = 512) {
                 ctx.fill();
             }
             break;
+            
+        // 卫星纹理
+        case 'moon':
+            ctx.fillStyle = '#c0c0c0';
+            ctx.fillRect(0, 0, size, size);
+            for(let i = 0; i < 150; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 15 + 3, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(80, 80, 80, ${Math.random() * 0.5})`;
+                ctx.fill();
+            }
+            break;
+            
+        case 'phobos':
+        case 'deimos':
+            ctx.fillStyle = '#8b7355';
+            ctx.fillRect(0, 0, size, size);
+            for(let i = 0; i < 80; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 12 + 2, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(60, 50, 40, ${Math.random() * 0.4})`;
+                ctx.fill();
+            }
+            break;
+            
+        case 'io':
+            ctx.fillStyle = '#f5deb3';
+            ctx.fillRect(0, 0, size, size);
+            for(let i = 0; i < 60; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 30 + 10, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 200, 100, ${Math.random() * 0.4})`;
+                ctx.fill();
+            }
+            ctx.fillStyle = 'rgba(255, 100, 50, 0.3)';
+            for(let i = 0; i < 10; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 20 + 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            break;
+            
+        case 'europa':
+            ctx.fillStyle = '#f0e68c';
+            ctx.fillRect(0, 0, size, size);
+            for(let i = 0; i < 30; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 25 + 10, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(200, 180, 140, ${Math.random() * 0.2})`;
+                ctx.fill();
+            }
+            break;
+            
+        case 'ganymede':
+            ctx.fillStyle = '#a0a0a0';
+            ctx.fillRect(0, 0, size, size);
+            for(let y = 0; y < size; y += 40) {
+                ctx.fillStyle = `rgba(120, 120, 120, ${Math.random() * 0.3})`;
+                ctx.fillRect(0, y, size, 25);
+            }
+            break;
+            
+        case 'callisto':
+            ctx.fillStyle = '#696969';
+            ctx.fillRect(0, 0, size, size);
+            for(let i = 0; i < 200; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 10 + 2, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(50, 50, 50, ${Math.random() * 0.5})`;
+                ctx.fill();
+            }
+            break;
+            
+        case 'titan':
+            ctx.fillStyle = '#daa520';
+            ctx.fillRect(0, 0, size, size);
+            for(let i = 0; i < 40; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 40 + 15, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(180, 140, 80, ${Math.random() * 0.3})`;
+                ctx.fill();
+            }
+            break;
+            
+        case 'miranda':
+        case 'ariel':
+        case 'umbriel':
+        case 'titania':
+        case 'oberon':
+            ctx.fillStyle = '#a9a9a9';
+            ctx.fillRect(0, 0, size, size);
+            for(let i = 0; i < 80; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 12 + 3, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(70, 70, 70, ${Math.random() * 0.4})`;
+                ctx.fill();
+            }
+            break;
+            
+        case 'triton':
+            ctx.fillStyle = '#b0c4de';
+            ctx.fillRect(0, 0, size, size);
+            for(let i = 0; i < 50; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 20 + 8, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(100, 120, 150, ${Math.random() * 0.3})`;
+                ctx.fill();
+            }
+            break;
     }
     
     const texture = new THREE.CanvasTexture(canvas);
@@ -291,12 +400,10 @@ function createSun() {
     const sun = new THREE.Mesh(geometry, material);
     scene.add(sun);
 
-    // 太阳标签
     const label = createPlanetLabel('太阳', '☀️');
     label.position.set(0, 12, 0);
     sun.add(label);
 
-    // 太阳光晕
     const glowGeometry = new THREE.SphereGeometry(12, 32, 32);
     const glowMaterial = new THREE.MeshBasicMaterial({
         color: 0xffaa00,
@@ -321,39 +428,110 @@ function createSun() {
     return sun;
 }
 
-// ========== 行星数据配置 ==========
+// ========== 行星数据配置（含卫星）==========
 const planetData = [
-    { name: '水星', emoji: '☿️', type: 'mercury', radius: 1.5, orbitRadius: 18, speed: 4.74 },
-    { name: '金星', emoji: '♀️', type: 'venus', radius: 2.5, orbitRadius: 28, speed: 3.5 },
-    { name: '地球', emoji: '🌍', type: 'earth', radius: 2.8, orbitRadius: 40, speed: 2.98 },
-    { name: '火星', emoji: '♂️', type: 'mars', radius: 2.2, orbitRadius: 55, speed: 2.41 },
-    { name: '木星', emoji: '♃', type: 'jupiter', radius: 7, orbitRadius: 80, speed: 1.31 },
-    { name: '土星', emoji: '🪐', type: 'saturn', radius: 6, orbitRadius: 110, speed: 0.97, hasRing: true },
-    { name: '天王星', emoji: '⛢', type: 'uranus', radius: 4, orbitRadius: 140, speed: 0.68 },
-    { name: '海王星', emoji: '♆', type: 'neptune', radius: 3.8, orbitRadius: 170, speed: 0.54 }
+    { name: '水星', emoji: '☿️', type: 'mercury', radius: 1.5, orbitRadius: 18, speed: 4.74, satellites: [] },
+    { name: '金星', emoji: '♀️', type: 'venus', radius: 2.5, orbitRadius: 28, speed: 3.5, satellites: [] },
+    { 
+        name: '地球', emoji: '🌍', type: 'earth', radius: 2.8, orbitRadius: 40, speed: 2.98, 
+        satellites: [
+            { name: '月球', emoji: '🌙', type: 'moon', radius: 0.7, orbitRadius: 5, speed: 13.37 }
+        ]
+    },
+    { 
+        name: '火星', emoji: '♂️', type: 'mars', radius: 2.2, orbitRadius: 55, speed: 2.41, 
+        satellites: [
+            { name: '火卫一', emoji: '🪨', type: 'phobos', radius: 0.3, orbitRadius: 3.5, speed: 28 },
+            { name: '火卫二', emoji: '🪨', type: 'deimos', radius: 0.2, orbitRadius: 5, speed: 20 }
+        ]
+    },
+    { 
+        name: '木星', emoji: '♃', type: 'jupiter', radius: 7, orbitRadius: 80, speed: 1.31, 
+        satellites: [
+            { name: '木卫一', emoji: '🔥', type: 'io', radius: 0.9, orbitRadius: 12, speed: 17.3 },
+            { name: '木卫二', emoji: '❄️', type: 'europa', radius: 0.8, orbitRadius: 15, speed: 13.7 },
+            { name: '木卫三', radius: 1.2, orbitRadius: 19, speed: 10.9, type: 'ganymede', emoji: '🌑' },
+            { name: '木卫四', emoji: '🌑', type: 'callisto', radius: 1.1, orbitRadius: 25, speed: 8.2 }
+        ]
+    },
+    { 
+        name: '土星', emoji: '🪐', type: 'saturn', radius: 6, orbitRadius: 110, speed: 0.97, hasRing: true,
+        satellites: [
+            { name: '土卫六', emoji: '🟠', type: 'titan', radius: 1.3, orbitRadius: 20, speed: 6.3 }
+        ]
+    },
+    { 
+        name: '天王星', emoji: '⛢', type: 'uranus', radius: 4, orbitRadius: 140, speed: 0.68, 
+        satellites: [
+            { name: '天卫五', emoji: '🌑', type: 'miranda', radius: 0.4, orbitRadius: 7, speed: 15 },
+            { name: '天卫一', emoji: '🌑', type: 'ariel', radius: 0.5, orbitRadius: 9, speed: 12 },
+            { name: '天卫二', emoji: '🌑', type: 'umbriel', radius: 0.5, orbitRadius: 11, speed: 10 },
+            { name: '天卫三', emoji: '🌑', type: 'titania', radius: 0.6, orbitRadius: 14, speed: 8 },
+            { name: '天卫四', emoji: '🌑', type: 'oberon', radius: 0.6, orbitRadius: 17, speed: 6 }
+        ]
+    },
+    { 
+        name: '海王星', emoji: '♆', type: 'neptune', radius: 3.8, orbitRadius: 170, speed: 0.54, 
+        satellites: [
+            { name: '海卫一', emoji: '❄️', type: 'triton', radius: 0.8, orbitRadius: 10, speed: -4.4 }
+        ]
+    }
 ];
 
 const planets = [];
 
 // ========== 创建轨道线 ==========
-function createOrbitLine(radius) {
+function createOrbitLine(radius, isSatellite = false) {
     const curve = new THREE.EllipseCurve(0, 0, radius, radius, 0, 2 * Math.PI, false, 0);
     const points = curve.getPoints(100);
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
     const material = new THREE.LineBasicMaterial({
-        color: 0x444444,
+        color: isSatellite ? 0x666666 : 0x444444,
         transparent: true,
-        opacity: 0.3
+        opacity: isSatellite ? 0.2 : 0.3
     });
 
     const orbit = new THREE.Line(geometry, material);
     orbit.rotation.x = -Math.PI / 2;
-    scene.add(orbit);
+    return orbit;
+}
+
+// ========== 创建卫星 ==========
+function createSatellite(data, parent) {
+    const geometry = new THREE.SphereGeometry(data.radius, 32, 32);
+    const texture = createPlanetTexture(data.type);
+    
+    const material = new THREE.MeshStandardMaterial({
+        map: texture,
+        roughness: 0.6,
+        metalness: 0.1
+    });
+
+    const satellite = new THREE.Mesh(geometry, material);
+    
+    // 创建卫星轨道线并添加到行星
+    const orbitLine = createOrbitLine(data.orbitRadius, true);
+    parent.add(orbitLine);
+    
+    // 添加标签
+    const label = createPlanetLabel(data.name, data.emoji);
+    label.position.set(0, data.radius + 1.5, 0);
+    satellite.add(label);
+    
+    parent.add(satellite);
+
+    return {
+        mesh: satellite,
+        orbitRadius: data.orbitRadius,
+        speed: data.speed,
+        angle: Math.random() * Math.PI * 2
+    };
 }
 
 // ========== 创建行星 ==========
 function createPlanet(data) {
-    createOrbitLine(data.orbitRadius);
+    const orbitLine = createOrbitLine(data.orbitRadius);
+    scene.add(orbitLine);
 
     const geometry = new THREE.SphereGeometry(data.radius, 64, 64);
     const texture = createPlanetTexture(data.type);
@@ -373,15 +551,25 @@ function createPlanet(data) {
     label.position.set(0, data.radius + 2, 0);
     planet.add(label);
 
+    // 土星环
     if (data.hasRing) {
         createSaturnRing(planet);
+    }
+    
+    // 创建卫星
+    const satellites = [];
+    if (data.satellites && data.satellites.length > 0) {
+        data.satellites.forEach(satData => {
+            satellites.push(createSatellite(satData, planet));
+        });
     }
 
     return {
         mesh: planet,
         orbitRadius: data.orbitRadius,
         speed: data.speed,
-        angle: Math.random() * Math.PI * 2
+        angle: Math.random() * Math.PI * 2,
+        satellites: satellites
     };
 }
 
@@ -429,10 +617,21 @@ function animate() {
     requestAnimationFrame(animate);
 
     planets.forEach(planet => {
+        // 行星绕太阳公转
         planet.angle += planet.speed * 0.001;
         planet.mesh.position.x = Math.cos(planet.angle) * planet.orbitRadius;
         planet.mesh.position.z = Math.sin(planet.angle) * planet.orbitRadius;
         planet.mesh.rotation.y += 0.005;
+        
+        // 卫星绕行星公转
+        if (planet.satellites) {
+            planet.satellites.forEach(satellite => {
+                satellite.angle += satellite.speed * 0.002;
+                satellite.mesh.position.x = Math.cos(satellite.angle) * satellite.orbitRadius;
+                satellite.mesh.position.z = Math.sin(satellite.angle) * satellite.orbitRadius;
+                satellite.mesh.rotation.y += 0.01;
+            });
+        }
     });
 
     controls.update();
