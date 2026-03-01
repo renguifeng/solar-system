@@ -636,6 +636,117 @@ function createSaturnRing(planet) {
     planet.add(ring);
 }
 
+// ========== 小行星带 ==========
+let asteroidBelt = null;      // 主小行星带（火星-木星之间）
+let kuiperBelt = null;        // 柯伊伯带（海王星之外）
+
+// 创建小行星带
+function createAsteroidBelt(innerRadius, outerRadius, count, color = 0x888888) {
+    const asteroidCount = count;
+    const geometry = new THREE.IcosahedronGeometry(0.15, 0);
+    const material = new THREE.MeshStandardMaterial({
+        color: color,
+        roughness: 0.9,
+        metalness: 0.1
+    });
+    
+    const asteroids = new THREE.InstancedMesh(geometry, material, asteroidCount);
+    
+    const matrix = new THREE.Matrix4();
+    const position = new THREE.Vector3();
+    const rotation = new THREE.Euler();
+    const quaternion = new THREE.Quaternion();
+    const scale = new THREE.Vector3();
+    
+    const asteroidData = [];  // 存储每颗小行星的运动数据
+    
+    for (let i = 0; i < asteroidCount; i++) {
+        // 随机轨道半径
+        const orbitRadius = innerRadius + Math.random() * (outerRadius - innerRadius);
+        // 随机角度
+        const angle = Math.random() * Math.PI * 2;
+        // 随机倾斜（轻微偏离黄道面）
+        const yOffset = (Math.random() - 0.5) * 4;
+        
+        position.set(
+            Math.cos(angle) * orbitRadius,
+            yOffset,
+            Math.sin(angle) * orbitRadius
+        );
+        
+        // 随机旋转
+        rotation.set(
+            Math.random() * Math.PI,
+            Math.random() * Math.PI,
+            Math.random() * Math.PI
+        );
+        quaternion.setFromEuler(rotation);
+        
+        // 随机大小
+        const s = Math.random() * 0.8 + 0.3;
+        scale.set(s, s, s);
+        
+        matrix.compose(position, quaternion, scale);
+        asteroids.setMatrixAt(i, matrix);
+        
+        // 保存运动数据
+        asteroidData.push({
+            orbitRadius: orbitRadius,
+            angle: angle,
+            yOffset: yOffset,
+            speed: 0.0005 + Math.random() * 0.001,  // 公转速度
+            rotationSpeed: {
+                x: (Math.random() - 0.5) * 0.02,
+                y: (Math.random() - 0.5) * 0.02,
+                z: (Math.random() - 0.5) * 0.02
+            }
+        });
+    }
+    
+    asteroids.instanceMatrix.needsUpdate = true;
+    scene.add(asteroids);
+    
+    return { mesh: asteroids, data: asteroidData, geometry, material };
+}
+
+// 更新小行星带动画
+function updateAsteroidBelt(beltObj) {
+    if (!beltObj || !beltObj.mesh.visible) return;
+    
+    const matrix = new THREE.Matrix4();
+    const position = new THREE.Vector3();
+    const rotation = new THREE.Euler();
+    const quaternion = new THREE.Quaternion();
+    const scale = new THREE.Vector3();
+    
+    beltObj.data.forEach((data, i) => {
+        // 更新角度
+        data.angle += data.speed;
+        
+        // 计算新位置
+        position.set(
+            Math.cos(data.angle) * data.orbitRadius,
+            data.yOffset,
+            Math.sin(data.angle) * data.orbitRadius
+        );
+        
+        // 更新旋转
+        rotation.x += data.rotationSpeed.x;
+        rotation.y += data.rotationSpeed.y;
+        rotation.z += data.rotationSpeed.z;
+        quaternion.setFromEuler(rotation);
+        
+        // 保持原大小
+        beltObj.mesh.getMatrixAt(i, matrix);
+        matrix.decompose(new THREE.Vector3(), new THREE.Quaternion(), scale);
+        
+        matrix.compose(position, quaternion, scale);
+        beltObj.mesh.setMatrixAt(i, matrix);
+    });
+    
+    beltObj.mesh.instanceMatrix.needsUpdate = true;
+}
+
 // ========== 初始化场景 ==========
 function init() {
     createStarField();
@@ -644,6 +755,12 @@ function init() {
     planetData.forEach(data => {
         planets.push(createPlanet(data));
     });
+
+    // 创建主小行星带（火星和木星之间，约 55-80 轨道之间）
+    asteroidBelt = createAsteroidBelt(60, 75, 2000, 0x808080);
+    
+    // 创建柯伊伯带（海王星之外，约 170+ 轨道）
+    kuiperBelt = createAsteroidBelt(180, 220, 3000, 0x607090);
 
     const ambientLight = new THREE.AmbientLight(0x888888, 0.9);
     scene.add(ambientLight);
@@ -670,6 +787,10 @@ function animate() {
             });
         }
     });
+    
+    // 更新小行星带动画
+    updateAsteroidBelt(asteroidBelt);
+    updateAsteroidBelt(kuiperBelt);
 
     controls.update();
     renderer.render(scene, camera);
@@ -700,6 +821,8 @@ function toggleOrbits(visible) {
 function setupControls() {
     const labelSwitch = document.getElementById('toggle-labels');
     const orbitSwitch = document.getElementById('toggle-orbits');
+    const asteroidBeltSwitch = document.getElementById('toggle-asteroid-belt');
+    const kuiperBeltSwitch = document.getElementById('toggle-kuiper-belt');
     
     if (labelSwitch) {
         labelSwitch.addEventListener('change', (e) => {
@@ -710,6 +833,22 @@ function setupControls() {
     if (orbitSwitch) {
         orbitSwitch.addEventListener('change', (e) => {
             toggleOrbits(e.target.checked);
+        });
+    }
+    
+    if (asteroidBeltSwitch) {
+        asteroidBeltSwitch.addEventListener('change', (e) => {
+            if (asteroidBelt) {
+                asteroidBelt.mesh.visible = e.target.checked;
+            }
+        });
+    }
+    
+    if (kuiperBeltSwitch) {
+        kuiperBeltSwitch.addEventListener('change', (e) => {
+            if (kuiperBelt) {
+                kuiperBelt.mesh.visible = e.target.checked;
+            }
         });
     }
 }
