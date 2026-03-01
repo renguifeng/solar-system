@@ -40,17 +40,39 @@ function createPlanetLabel(name, emoji) {
         font-family: 'Microsoft YaHei', Arial, sans-serif;
         font-size: 12px;
         padding: 4px 8px;
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(0, 0, 0, 0.7);
         border-radius: 4px;
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.4);
         white-space: nowrap;
         pointer-events: none;
-        text-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+        text-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
     `;
     const label = new CSS2DObject(div);
     label.position.set(0, 3, 0);
     allLabels.push(label);  // 保存到数组
     return label;
+}
+
+// ========== 增强颜色对比度 ==========
+function enhanceContrast(color, factor = 1.6) {
+    // 将颜色向更极端方向调整（深色更深，浅色更浅）
+    const r = parseInt(color.slice(1, 3), 16);
+    const g = parseInt(color.slice(3, 5), 16);
+    const b = parseInt(color.slice(5, 7), 16);
+    
+    const adjust = (c) => {
+        if (c > 128) {
+            return Math.min(255, c + (255 - c) * (factor - 1));
+        } else {
+            return Math.max(0, c - c * (factor - 1));
+        }
+    };
+    
+    const nr = Math.round(adjust(r));
+    const ng = Math.round(adjust(g));
+    const nb = Math.round(adjust(b));
+    
+    return `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
 }
 
 // ========== 程序化纹理生成 ==========
@@ -62,7 +84,7 @@ function createPlanetTexture(type, size = 512) {
     
     switch(type) {
         case 'mercury':
-            ctx.fillStyle = '#8c7853';
+            ctx.fillStyle = '#9a8866';
             ctx.fillRect(0, 0, size, size);
             for(let i = 0; i < 200; i++) {
                 const x = Math.random() * size;
@@ -70,28 +92,28 @@ function createPlanetTexture(type, size = 512) {
                 const r = Math.random() * 20 + 5;
                 ctx.beginPath();
                 ctx.arc(x, y, r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(60, 50, 40, ${Math.random() * 0.5})`;
+                ctx.fillStyle = `rgba(40, 30, 20, ${Math.random() * 0.6})`;
                 ctx.fill();
             }
             break;
             
         case 'venus':
             const venusGrad = ctx.createLinearGradient(0, 0, size, size);
-            venusGrad.addColorStop(0, '#ffc649');
-            venusGrad.addColorStop(0.5, '#e6a030');
-            venusGrad.addColorStop(1, '#d4891a');
+            venusGrad.addColorStop(0, '#ffd666');
+            venusGrad.addColorStop(0.5, '#e8a820');
+            venusGrad.addColorStop(1, '#c07810');
             ctx.fillStyle = venusGrad;
             ctx.fillRect(0, 0, size, size);
             for(let i = 0; i < 30; i++) {
                 ctx.beginPath();
                 ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 80 + 20, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 220, 150, ${Math.random() * 0.3})`;
+                ctx.fillStyle = `rgba(255, 230, 160, ${Math.random() * 0.4})`;
                 ctx.fill();
             }
             break;
             
         case 'earth':
-            ctx.fillStyle = '#1a5fb4';
+            ctx.fillStyle = '#0a4fb0';
             ctx.fillRect(0, 0, size, size);
             const continents = [
                 {x: 100, y: 150, w: 120, h: 80},
@@ -101,19 +123,19 @@ function createPlanetTexture(type, size = 512) {
                 {x: 400, y: 350, w: 90, h: 70}
             ];
             continents.forEach(c => {
-                ctx.fillStyle = '#2e7d32';
+                ctx.fillStyle = '#1a8a20';
                 ctx.beginPath();
                 ctx.ellipse(c.x, c.y, c.w/2, c.h/2, 0, 0, Math.PI * 2);
                 ctx.fill();
                 for(let i = 0; i < 5; i++) {
-                    ctx.fillStyle = `rgba(60, 100, 60, ${Math.random() * 0.5})`;
+                    ctx.fillStyle = `rgba(40, 100, 40, ${Math.random() * 0.6})`;
                     ctx.beginPath();
                     ctx.ellipse(c.x + (Math.random()-0.5)*c.w*0.6, c.y + (Math.random()-0.5)*c.h*0.6, c.w/6, c.h/6, 0, 0, Math.PI * 2);
                     ctx.fill();
                 }
             });
             for(let i = 0; i < 15; i++) {
-                ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.4 + 0.1})`;
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.2})`;
                 ctx.beginPath();
                 ctx.ellipse(Math.random() * size, Math.random() * size, Math.random() * 60 + 20, Math.random() * 30 + 10, 0, 0, Math.PI * 2);
                 ctx.fill();
@@ -122,41 +144,41 @@ function createPlanetTexture(type, size = 512) {
             
         case 'mars':
             const marsGrad = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size);
-            marsGrad.addColorStop(0, '#c1440e');
-            marsGrad.addColorStop(0.5, '#a33a0c');
-            marsGrad.addColorStop(1, '#8b3009');
+            marsGrad.addColorStop(0, '#d45210');
+            marsGrad.addColorStop(0.5, '#b34008');
+            marsGrad.addColorStop(1, '#802000');
             ctx.fillStyle = marsGrad;
             ctx.fillRect(0, 0, size, size);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
             ctx.beginPath();
             ctx.ellipse(size/2, 30, 80, 30, 0, 0, Math.PI * 2);
             ctx.fill();
             for(let i = 0; i < 50; i++) {
                 ctx.beginPath();
                 ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 15 + 3, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(100, 30, 10, ${Math.random() * 0.4})`;
+                ctx.fillStyle = `rgba(80, 20, 0, ${Math.random() * 0.5})`;
                 ctx.fill();
             }
             break;
             
         case 'jupiter':
-            const jupiterColors = ['#d8ca9d', '#c4a574', '#a67c52', '#8b6914', '#d4b896'];
+            const jupiterColors = ['#e8d8a8', '#c49050', '#8a5820', '#604010', '#d8c080'];
             for(let y = 0; y < size; y += 25) {
                 ctx.fillStyle = jupiterColors[Math.floor(y / 25) % jupiterColors.length];
                 ctx.fillRect(0, y, size, 30);
             }
-            ctx.fillStyle = '#c45c3e';
+            ctx.fillStyle = '#d84830';
             ctx.beginPath();
             ctx.ellipse(350, 280, 60, 35, 0.2, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = '#a84832';
+            ctx.fillStyle = '#b03020';
             ctx.beginPath();
             ctx.ellipse(350, 280, 40, 22, 0.2, 0, Math.PI * 2);
             ctx.fill();
             break;
             
         case 'saturn':
-            const saturnColors = ['#f4d59e', '#e8c97a', '#d4b56a', '#c9a85c', '#f0d090'];
+            const saturnColors = ['#f8e090', '#e8b850', '#c89030', '#a87020', '#f0d080'];
             for(let y = 0; y < size; y += 30) {
                 ctx.fillStyle = saturnColors[Math.floor(y / 30) % saturnColors.length];
                 ctx.fillRect(0, y, size, 35);
@@ -165,30 +187,30 @@ function createPlanetTexture(type, size = 512) {
             
         case 'uranus':
             const uranusGrad = ctx.createLinearGradient(0, 0, 0, size);
-            uranusGrad.addColorStop(0, '#a8e0e0');
-            uranusGrad.addColorStop(0.5, '#d1e7e7');
-            uranusGrad.addColorStop(1, '#8fd4d4');
+            uranusGrad.addColorStop(0, '#80d8d8');
+            uranusGrad.addColorStop(0.5, '#c0f0f0');
+            uranusGrad.addColorStop(1, '#60c0c0');
             ctx.fillStyle = uranusGrad;
             ctx.fillRect(0, 0, size, size);
             for(let y = 0; y < size; y += 40) {
-                ctx.fillStyle = `rgba(150, 200, 200, ${Math.random() * 0.3})`;
+                ctx.fillStyle = `rgba(120, 180, 180, ${Math.random() * 0.4})`;
                 ctx.fillRect(0, y, size, 20);
             }
             break;
             
         case 'neptune':
             const neptuneGrad = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size);
-            neptuneGrad.addColorStop(0, '#4169e1');
-            neptuneGrad.addColorStop(0.5, '#5b5ddf');
-            neptuneGrad.addColorStop(1, '#3a4fc9');
+            neptuneGrad.addColorStop(0, '#3080f0');
+            neptuneGrad.addColorStop(0.5, '#4050d0');
+            neptuneGrad.addColorStop(1, '#2030a0');
             ctx.fillStyle = neptuneGrad;
             ctx.fillRect(0, 0, size, size);
-            ctx.fillStyle = 'rgba(30, 40, 100, 0.6)';
+            ctx.fillStyle = 'rgba(20, 30, 80, 0.7)';
             ctx.beginPath();
             ctx.ellipse(200, 250, 70, 40, 0.1, 0, Math.PI * 2);
             ctx.fill();
             for(let i = 0; i < 8; i++) {
-                ctx.fillStyle = `rgba(100, 150, 255, ${Math.random() * 0.3})`;
+                ctx.fillStyle = `rgba(100, 160, 255, ${Math.random() * 0.4})`;
                 ctx.fillRect(0, i * 64 + 20, size, 15);
             }
             break;
@@ -196,9 +218,9 @@ function createPlanetTexture(type, size = 512) {
         case 'sun':
             const sunGrad = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
             sunGrad.addColorStop(0, '#ffffff');
-            sunGrad.addColorStop(0.3, '#ffdd00');
-            sunGrad.addColorStop(0.7, '#ff9900');
-            sunGrad.addColorStop(1, '#ff6600');
+            sunGrad.addColorStop(0.3, '#ffee00');
+            sunGrad.addColorStop(0.7, '#ff8800');
+            sunGrad.addColorStop(1, '#ff4400');
             ctx.fillStyle = sunGrad;
             ctx.fillRect(0, 0, size, size);
             for(let i = 0; i < 20; i++) {
@@ -207,45 +229,45 @@ function createPlanetTexture(type, size = 512) {
                 const r = Math.random() * 30 + 10;
                 ctx.beginPath();
                 ctx.arc(x, y, r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, ${150 + Math.random() * 50}, 0, ${Math.random() * 0.5 + 0.3})`;
+                ctx.fillStyle = `rgba(255, ${130 + Math.random() * 70}, 0, ${Math.random() * 0.6 + 0.3})`;
                 ctx.fill();
             }
             break;
             
         // 卫星纹理
         case 'moon':
-            ctx.fillStyle = '#c0c0c0';
+            ctx.fillStyle = '#d0d0d0';
             ctx.fillRect(0, 0, size, size);
             for(let i = 0; i < 150; i++) {
                 ctx.beginPath();
                 ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 15 + 3, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(80, 80, 80, ${Math.random() * 0.5})`;
+                ctx.fillStyle = `rgba(60, 60, 60, ${Math.random() * 0.6})`;
                 ctx.fill();
             }
             break;
             
         case 'phobos':
         case 'deimos':
-            ctx.fillStyle = '#8b7355';
+            ctx.fillStyle = '#9a8060';
             ctx.fillRect(0, 0, size, size);
             for(let i = 0; i < 80; i++) {
                 ctx.beginPath();
                 ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 12 + 2, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(60, 50, 40, ${Math.random() * 0.4})`;
+                ctx.fillStyle = `rgba(50, 40, 30, ${Math.random() * 0.5})`;
                 ctx.fill();
             }
             break;
             
         case 'io':
-            ctx.fillStyle = '#f5deb3';
+            ctx.fillStyle = '#f8e0a0';
             ctx.fillRect(0, 0, size, size);
             for(let i = 0; i < 60; i++) {
                 ctx.beginPath();
                 ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 30 + 10, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 200, 100, ${Math.random() * 0.4})`;
+                ctx.fillStyle = `rgba(255, 200, 80, ${Math.random() * 0.5})`;
                 ctx.fill();
             }
-            ctx.fillStyle = 'rgba(255, 100, 50, 0.3)';
+            ctx.fillStyle = 'rgba(255, 80, 30, 0.4)';
             for(let i = 0; i < 10; i++) {
                 ctx.beginPath();
                 ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 20 + 5, 0, Math.PI * 2);
@@ -254,43 +276,43 @@ function createPlanetTexture(type, size = 512) {
             break;
             
         case 'europa':
-            ctx.fillStyle = '#f0e68c';
+            ctx.fillStyle = '#f8f080';
             ctx.fillRect(0, 0, size, size);
             for(let i = 0; i < 30; i++) {
                 ctx.beginPath();
                 ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 25 + 10, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(200, 180, 140, ${Math.random() * 0.2})`;
+                ctx.fillStyle = `rgba(180, 160, 100, ${Math.random() * 0.25})`;
                 ctx.fill();
             }
             break;
             
         case 'ganymede':
-            ctx.fillStyle = '#a0a0a0';
+            ctx.fillStyle = '#a8a8a8';
             ctx.fillRect(0, 0, size, size);
             for(let y = 0; y < size; y += 40) {
-                ctx.fillStyle = `rgba(120, 120, 120, ${Math.random() * 0.3})`;
+                ctx.fillStyle = `rgba(100, 100, 100, ${Math.random() * 0.4})`;
                 ctx.fillRect(0, y, size, 25);
             }
             break;
             
         case 'callisto':
-            ctx.fillStyle = '#696969';
+            ctx.fillStyle = '#787878';
             ctx.fillRect(0, 0, size, size);
             for(let i = 0; i < 200; i++) {
                 ctx.beginPath();
                 ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 10 + 2, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(50, 50, 50, ${Math.random() * 0.5})`;
+                ctx.fillStyle = `rgba(40, 40, 40, ${Math.random() * 0.6})`;
                 ctx.fill();
             }
             break;
             
         case 'titan':
-            ctx.fillStyle = '#daa520';
+            ctx.fillStyle = '#e0b020';
             ctx.fillRect(0, 0, size, size);
             for(let i = 0; i < 40; i++) {
                 ctx.beginPath();
                 ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 40 + 15, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(180, 140, 80, ${Math.random() * 0.3})`;
+                ctx.fillStyle = `rgba(160, 120, 60, ${Math.random() * 0.4})`;
                 ctx.fill();
             }
             break;
@@ -300,23 +322,23 @@ function createPlanetTexture(type, size = 512) {
         case 'umbriel':
         case 'titania':
         case 'oberon':
-            ctx.fillStyle = '#a9a9a9';
+            ctx.fillStyle = '#b8b8b8';
             ctx.fillRect(0, 0, size, size);
             for(let i = 0; i < 80; i++) {
                 ctx.beginPath();
                 ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 12 + 3, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(70, 70, 70, ${Math.random() * 0.4})`;
+                ctx.fillStyle = `rgba(60, 60, 60, ${Math.random() * 0.5})`;
                 ctx.fill();
             }
             break;
             
         case 'triton':
-            ctx.fillStyle = '#b0c4de';
+            ctx.fillStyle = '#b8d0e8';
             ctx.fillRect(0, 0, size, size);
             for(let i = 0; i < 50; i++) {
                 ctx.beginPath();
                 ctx.arc(Math.random() * size, Math.random() * size, Math.random() * 20 + 8, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(100, 120, 150, ${Math.random() * 0.3})`;
+                ctx.fillStyle = `rgba(80, 100, 130, ${Math.random() * 0.4})`;
                 ctx.fill();
             }
             break;
@@ -353,37 +375,44 @@ function createSaturnRingTexture(size = 512) {
     return texture;
 }
 
-// ========== 创建星空背景 ==========
+// ========== 创建星空背景（球形星星）==========
 function createStarField() {
     const starCount = 5000;
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(starCount * 3);
-    const colors = new Float32Array(starCount * 3);
-
-    for (let i = 0; i < starCount; i++) {
-        const i3 = i * 3;
-        positions[i3] = (Math.random() - 0.5) * 2000;
-        positions[i3 + 1] = (Math.random() - 0.5) * 2000;
-        positions[i3 + 2] = (Math.random() - 0.5) * 2000;
-
-        const color = new THREE.Color();
-        color.setHSL(0.6, 0.2, 0.5 + Math.random() * 0.5);
-        colors[i3] = color.r;
-        colors[i3 + 1] = color.g;
-        colors[i3 + 2] = color.b;
-    }
-
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-    const material = new THREE.PointsMaterial({
-        size: 2,
-        vertexColors: true,
+    
+    // 使用 InstancedMesh 批量渲染球形星星
+    const geometry = new THREE.SphereGeometry(0.8, 8, 8);
+    const material = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
         transparent: true,
-        opacity: 0.8
+        opacity: 0.9
     });
-
-    const stars = new THREE.Points(geometry, material);
+    
+    const stars = new THREE.InstancedMesh(geometry, material, starCount);
+    
+    const matrix = new THREE.Matrix4();
+    const color = new THREE.Color();
+    
+    for (let i = 0; i < starCount; i++) {
+        // 随机位置
+        const x = (Math.random() - 0.5) * 2000;
+        const y = (Math.random() - 0.5) * 2000;
+        const z = (Math.random() - 0.5) * 2000;
+        
+        // 随机大小（0.5 到 1.5）
+        const scale = Math.random() * 1.5 + 0.5;
+        
+        matrix.makeScale(scale, scale, scale);
+        matrix.setPosition(x, y, z);
+        stars.setMatrixAt(i, matrix);
+        
+        // 随机颜色（偏蓝白色）
+        color.setHSL(0.6, 0.2, 0.5 + Math.random() * 0.5);
+        stars.setColorAt(i, color);
+    }
+    
+    stars.instanceMatrix.needsUpdate = true;
+    stars.instanceColor.needsUpdate = true;
+    
     scene.add(stars);
 }
 
