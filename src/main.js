@@ -49,6 +49,7 @@ function createPlanetLabel(name, emoji) {
     `;
     const label = new CSS2DObject(div);
     label.position.set(0, 3, 0);
+    allLabels.push(label);  // 保存到数组
     return label;
 }
 
@@ -479,6 +480,8 @@ const planetData = [
 ];
 
 const planets = [];
+const allOrbits = [];  // 存储所有轨道线
+const allLabels = [];  // 存储所有标签
 
 // ========== 创建轨道线 ==========
 function createOrbitLine(radius, isSatellite = false) {
@@ -493,6 +496,7 @@ function createOrbitLine(radius, isSatellite = false) {
 
     const orbit = new THREE.Line(geometry, material);
     orbit.rotation.x = -Math.PI / 2;
+    allOrbits.push(orbit);  // 保存到数组
     return orbit;
 }
 
@@ -647,6 +651,37 @@ window.addEventListener('resize', () => {
     labelRenderer.setSize(window.innerWidth, window.innerHeight);
 });
 
+// ========== 开关控制 ==========
+function toggleLabels(visible) {
+    allLabels.forEach(label => {
+        label.visible = visible;
+    });
+}
+
+function toggleOrbits(visible) {
+    allOrbits.forEach(orbit => {
+        orbit.visible = visible;
+    });
+}
+
+function setupControls() {
+    const labelSwitch = document.getElementById('toggle-labels');
+    const orbitSwitch = document.getElementById('toggle-orbits');
+    
+    if (labelSwitch) {
+        labelSwitch.addEventListener('change', (e) => {
+            toggleLabels(e.target.checked);
+        });
+    }
+    
+    if (orbitSwitch) {
+        orbitSwitch.addEventListener('change', (e) => {
+            toggleOrbits(e.target.checked);
+        });
+    }
+}
+
 // ========== 启动程序 ==========
 init();
+setupControls();
 animate();
