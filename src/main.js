@@ -415,15 +415,15 @@ function createSun() {
     const glow = new THREE.Mesh(glowGeometry, glowMaterial);
     sun.add(glow);
 
-    const sunLight = new THREE.PointLight(0xffffff, 3, 800);
+    const sunLight = new THREE.PointLight(0xffffff, 4.5, 800);
     sunLight.position.set(0, 0, 0);
     scene.add(sunLight);
 
-    const sunLight2 = new THREE.PointLight(0xffffcc, 1.5, 600);
+    const sunLight2 = new THREE.PointLight(0xffffcc, 2.25, 600);
     sunLight2.position.set(0, 0, 0);
     scene.add(sunLight2);
 
-    const ambientLight = new THREE.AmbientLight(0x666666, 0.8);
+    const ambientLight = new THREE.AmbientLight(0x666666, 1.2);
     scene.add(ambientLight);
 
     return sun;
@@ -489,9 +489,9 @@ function createOrbitLine(radius, isSatellite = false) {
     const points = curve.getPoints(100);
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
     const material = new THREE.LineBasicMaterial({
-        color: isSatellite ? 0x666666 : 0x444444,
+        color: isSatellite ? 0x888888 : 0x666666,
         transparent: true,
-        opacity: isSatellite ? 0.2 : 0.3
+        opacity: isSatellite ? 0.3 : 0.45
     });
 
     const orbit = new THREE.Line(geometry, material);
@@ -508,7 +508,9 @@ function createSatellite(data, parent) {
     const material = new THREE.MeshStandardMaterial({
         map: texture,
         roughness: 0.6,
-        metalness: 0.1
+        metalness: 0.1,
+        emissive: 0xffffff,
+        emissiveIntensity: 0.15
     });
 
     const satellite = new THREE.Mesh(geometry, material);
@@ -544,7 +546,9 @@ function createPlanet(data) {
         map: texture,
         roughness: 0.6,
         metalness: 0.1,
-        bumpScale: 0.05
+        bumpScale: 0.05,
+        emissive: 0xffffff,
+        emissiveIntensity: 0.15
     });
 
     const planet = new THREE.Mesh(geometry, material);
@@ -612,7 +616,7 @@ function init() {
         planets.push(createPlanet(data));
     });
 
-    const ambientLight = new THREE.AmbientLight(0x888888, 0.6);
+    const ambientLight = new THREE.AmbientLight(0x888888, 0.9);
     scene.add(ambientLight);
 }
 
