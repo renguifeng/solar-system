@@ -643,7 +643,7 @@ let kuiperBelt = null;        // 柯伊伯带（海王星之外）
 // 创建小行星带
 function createAsteroidBelt(innerRadius, outerRadius, count, color = 0x888888) {
     const asteroidCount = count;
-    const geometry = new THREE.IcosahedronGeometry(0.5, 0);  // 增大尺寸
+    const geometry = new THREE.IcosahedronGeometry(0.2, 0);  // 适中尺寸
     const material = new THREE.MeshStandardMaterial({
         color: color,
         roughness: 0.7,
@@ -684,8 +684,8 @@ function createAsteroidBelt(innerRadius, outerRadius, count, color = 0x888888) {
         );
         quaternion.setFromEuler(rotation);
         
-        // 随机大小（增大范围）
-        const s = Math.random() * 1.5 + 0.5;
+        // 随机大小（缩小范围）
+        const s = Math.random() * 0.8 + 0.3;
         scale.set(s, s, s);
         
         matrix.compose(position, quaternion, scale);
