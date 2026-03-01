@@ -646,10 +646,10 @@ function createAsteroidBelt(innerRadius, outerRadius, count, color = 0x888888) {
     const geometry = new THREE.IcosahedronGeometry(0.2, 0);  // 适中尺寸
     const material = new THREE.MeshStandardMaterial({
         color: color,
-        roughness: 0.7,
-        metalness: 0.2,
+        roughness: 0.5,
+        metalness: 0.3,
         emissive: color,
-        emissiveIntensity: 0.3  // 增加自发光
+        emissiveIntensity: 0.6  // 增加自发光亮度
     });
     
     const asteroids = new THREE.InstancedMesh(geometry, material, asteroidCount);
@@ -759,10 +759,10 @@ function init() {
     });
 
     // 创建主小行星带（火星和木星之间，约 55-80 轨道之间）
-    asteroidBelt = createAsteroidBelt(60, 75, 2000, 0x808080);
+    asteroidBelt = createAsteroidBelt(60, 75, 2000, 0xa0a0a0);
     
     // 创建柯伊伯带（海王星之外，约 170+ 轨道）
-    kuiperBelt = createAsteroidBelt(180, 220, 3000, 0x607090);
+    kuiperBelt = createAsteroidBelt(180, 220, 3000, 0x8090b0);
 
     const ambientLight = new THREE.AmbientLight(0x888888, 0.9);
     scene.add(ambientLight);
